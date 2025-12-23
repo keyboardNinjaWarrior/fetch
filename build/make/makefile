@@ -1,15 +1,16 @@
 include var.mk
 
-main := fetch
+$(exe)/fetch: $(lib)/main.s $(src)/fetch.c $(inc)/main.h $(exe)
+	$(cc) $(flags) $(optim) -o $@ $(word 1, $^) $(word 2, $^) 
 
-$(exe)/main: $(obj)/main.c $(exe)
-	gcc $(flags) $(optim) $(obj)/main.c -o $(exe)/$(main)
-	./$(exe)/$(main)
+# files
+$(lib)/main.s: $(lib)
 
-$(obj)/main.o: $(src)/main.c $(obj)
-	gcc $(flags) $(optim) $(src)/main.c -o $(obj)/main.o
+$(src)/fetch.c: $(src)
 
-#files
+$(inc)/main.h: $(inc)
+
+# ----------------------
 $(exe): $(build) 
 	-mkdir $(exe)
 
@@ -18,3 +19,12 @@ $(obj): $(build)
 
 $(build):
 	-mkdir $(build)
+
+$(inc): $(src)
+	-mkdir $(inc)
+
+$(src):
+	-mkdir $(src)
+
+$(lib): $(src)
+	-mkdir $(lib)

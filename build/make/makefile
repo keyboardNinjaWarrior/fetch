@@ -1,16 +1,16 @@
 include var.mk
 
-$(exe)/fetch: $(lib)/main.s $(src)/fetch.c $(inc)/main.h $(exe)
+$(exe)/fetch: $(lib)/std.s $(src)/fetch.c $(inc)/main.h $(exe)
 	$(cc) $(flags) $(optim) -o $@ $(word 1, $^) $(word 2, $^) 
 
 # files
-$(lib)/main.s: $(lib)
+$(lib)/std.s: $(lib)
 
 $(src)/fetch.c: $(src)
 
 $(inc)/main.h: $(inc)
 
-# ----------------------
+# directories
 $(exe): $(build) 
 	-mkdir $(exe)
 

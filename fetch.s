@@ -9,11 +9,11 @@ string:
 _start:
 	// open function starts here
 open:
-	mov	x0,	#-100
-	ldr	x1,	=string
-	mov	x2,	#0
-	mov	x3,	#0
-	mov	x8,	#0x38
+	mov	x0,	#-100		// fd: -100 is magic number that tells to look into current directory
+	ldr	x1,	=string		// file name
+	mov	x2,	#0		// flag: 0 stands for reading
+	mov	x3,	#0		// mode: 0 stands for null
+	mov	x8,	#0x38		// syscall: 0x38 for openat
 	svc	#0
 	b	exit
 
@@ -28,7 +28,6 @@ write:
 
 	// exit function starts here
 exit:
-//	mov	x0,	#0		// first parameter in x0
+	mov	x0,	#0		// first parameter in x0
 	mov	x8,	#93		// x5D is will be placed in x8
-	svc	#0			// calling syscall
-	
+	svc	#0			// calling syscall	

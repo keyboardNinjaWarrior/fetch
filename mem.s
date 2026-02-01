@@ -1,27 +1,39 @@
 	.file		"mem"
+	.include	"exit.s"
+	.include	"stack.s"
 	.global		_start
 
-	.section	.bss			// skipping space for variables
-cur_brk:					// current address of page break
-	.skip	8				// reserving 8 bytes
-end_brk:					// end of address of page break
-	.skip	8				// reserving 8 bytes
+// brk() and sbrk() change the location
+// of  the program  break, which defin-
+// es the end of the process's data se-
+// gment  (i.e.,  the  program break is 
+// the  first  location  after the  end 
+// of  the uninitialize data  segment).
+// Increasing the program break has the 
+// effect  of allocating  memory to the 
+// process; decreasing the break deall-
+// ocate memory.
 
-// getting initial memory:
-// syscall: brk(0) -> initial address
 .macro	_brk	value 
-	mov	x0,	\value
-	mov	x8,	#0xD6
+	mov		x0,	\value
+	mov		x8,	#0xD6
 	svc		#0
 .endm
 
-	.text
+	.section	.text
 _start:
-	_brk	#0				// get inital address
-	ldr	x1,	=cur_brk		// stores the the address of cur_brk in x1
-						// the '='Rn is used to obtain address here
-	str	x0,	[x1]			// stores the value in x0 at the address present in x1
-						// [Rn] = drefrencing Rn
-exit:
-	mov 	x8,	#0x5D
-	svc		#0
+	mov		fp,	sp						// move current stack pointer to frame pointer
+
+	mov		x0, #20
+	bl		alloc
+
+	// from "exit.s"
+	_exit
+
+	.type alloc, @function
+alloc:
+	// from "stack.s"
+	istk
+	
+	// from "stack.s"
+	dstk

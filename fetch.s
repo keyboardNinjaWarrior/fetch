@@ -11,8 +11,8 @@ _start:
 open:
 	mov	x0,	#-100		// fd: -100 is magic number that tells to look into current directory
 	ldr	x1,	=string		// file name
-	mov	x2,	#0		// flag: 0 stands for reading
-	mov	x3,	#0		// mode: 0 stands for null
+	mov	x2,	#0			// flag: 0 stands for reading
+	mov	x3,	#0			// mode: 0 stands for null
 	mov	x8,	#0x38		// syscall: 0x38 for openat
 	svc	#0
 	b	exit

@@ -26,9 +26,11 @@ _start:
 	//			char* buf,
 	//			size_t count)
 
-	ldr x1, =read
-	mov	x2, #1
-	mov	x8,	#0x3F
+	// using the return value of openat: file descriptor
+
+	ldr x1, =read		// address where the read data will be stored
+	mov	x2, #1			// number of bytes
+	mov	x8,	#0x3F		// syscall: 0x3F for read
 	svc	#0
 
 	_exit

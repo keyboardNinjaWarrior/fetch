@@ -1,6 +1,8 @@
 	.file		"mem"
+	
 	.include	"exit.s"
 	.include	"stack.s"
+	
 	.global		_start
 
 // brk() and sbrk() change the location
@@ -14,26 +16,29 @@
 // process; decreasing the break deall-
 // ocate memory.
 
-.macro	_brk	value 
+.macro	brk, value						
 	mov		x0,	\value
+	_brk
+.endm
+
+.macro	_brk 
 	mov		x8,	#0xD6
 	svc		#0
 .endm
 
 	.section	.text
 _start:
-	mov		fp,	sp						// move current stack pointer to frame pointer
-
-	mov		x0, #20
+	mov		x0,	#16
 	bl		alloc
+	exit	#0	
 
-	// from "exit.s"
-	_exit
-
-	.type alloc, @function
+	.type	alloc, @function
 alloc:
-	// from "stack.s"
 	istk
-	
-	// from "stack.s"
-	dstk
+
+	brk		#0
+	add		x0,	x0,	x8	
+	_brk
+
+	ldr		x1,	=initial_brk
+	str		x1,	[x1]

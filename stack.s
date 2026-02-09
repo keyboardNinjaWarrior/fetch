@@ -1,11 +1,18 @@
 	.file		"stack"
 
+// defines macros:
+//		1. istk	-	initialize stack
+//		2. dstk	-	delete stack
+
 /* (Assembly 9b:  Functions using Stack
  * Frames in ARM) [www.youtube.com/watc
  * h?v=_9aAvenb6-Y
  *
  * A   comprehensive  video   on   stack 
  * frames
+ * 
+ * A  better implementation  is to  use
+ * stp/ltp
  */ 
 .macro istk 
 	sub		sp,	sp,	#16					// move stack pointer up to store data

@@ -24,7 +24,7 @@ _start:
 
 	// saving the file descriptor on stack
 	sub	sp,	sp,	#0x10	// pushing stack 16 bits up
-	str	x0,	[fp,	#-8]	// saved file descriptor on stack
+	str	x0,	[sp,	#12]	// saved file descriptor (4 bytes) on stack
 
 	// storing the first byte on the stack
 	
@@ -33,9 +33,9 @@ _start:
 	//		size_t count)
 
 	// using the return value of openat: file descriptor at x0
-	mov	x1,	sp		// getting address of 1 byte as address where the character will be stored		
-	mov	x2,	#1		// number of bytes
-	mov	x8,	#0x3F		// syscall: 0x3F for read
+	add	x1,	sp,	#11		// getting stack address for storing initial byte		
+	mov	x2,	#1			// number of bytes
+	mov	x8,	#0x3F			// syscall: 0x3F for read
 	svc	#0
 
 	// determining the number of bytes in unicode
@@ -44,9 +44,9 @@ _start:
 	// w5 holds the counter
 	// w6 result of comparison
 
-	ldr	w3,	[x1]					// load the first byte
+	ldrb	w3,	[x1]					// load the first byte
 	mov	w4,	#0b10000000				// move the mask bit into the register
-	mov	w5,	#1					// set the counter
+	mov	w5,	#0					// set the counter
 
 count_bytes:
 	and	w6,	w3,	w4				// first byte logical and bit mask and store the result
@@ -57,11 +57,44 @@ count_bytes:
 	b	count_bytes
 
 exit_count_bytes_loop:
+	
+	// calling read syscall
+	ldr	x0,	[sp,	#12]		// loading the file descriptor
+	add	x1,	sp,	#11		// getting the top of stack address
+	sub	x1,	x1,	x5		// making room for upcoming bytes
+	mov	x2,	x5			// number of bytes
+	mov	x8,	#0x3F			// syscall: 0x3F for read
+	svc	#0
+	
+	// size_t bytes (third argument) for syscall write
+	mov	w2,	w5			// copying the count in w2
+	add	w2,	w2,	#1		// increasing the count by one
 
-	ldr	x0,	[fp,	#-8]	
-	add	x1,	sp,	x5	// getting address of 1 byte as address where the character will be stored		
-	mov	x2,	x5		// number of bytes
-	mov	x8,	#0x3F		// syscall: 0x3F for read
+	// x1 - address of the bytes
+	// w3 - the previous byte and the result
+	// w4 - the upcoming bytes from stack
+	// w5 - number of bytes
+
+unicode_loop:
+	ldrb	w4,	[x1]			// load the byte in the register
+	lsl	w3,	w3,	#8		// shift the previous byte by 8 bits
+	add	w3,	w3,	w4		// add the the two bytes togather
+	sub	x5,	x5,	#1		// decrement the counter
+	add	x1,	x1,	#1		// decrement the stack address
+	
+	cmp	x5,	#0
+	bgt	unicode_loop
+	
+	// const char* buf (second argument) for write syscall
+	add	x1,	sp,	#4		// address on stack where characters will be stored
+	str	w3,	[x1]			// storing the unicode on stack
+
+	// write	(unsigned int fd,
+	//		 const char* buf,
+	//		 size_t count)
+
+	mov	x0,	#1			// loading file discriptor: stdout
+	mov	x8,	#0x40
 	svc	#0
 	
 	_exit

@@ -33,9 +33,9 @@ _start:
 	//		size_t count)
 
 	// using the return value of openat: file descriptor at x0
-	add	x1,	sp,	11		// getting stack address for storing initial byte		
-	mov	x2,	1			// number of bytes
-	mov	x8,	0x3F			// syscall: 0x3F for read
+	add	x1,	sp,	8		// getting stack address for storing initial byte		
+	mov	w2,	1			// number of bytes
+	mov	w8,	0x3F			// syscall: 0x3F for read
 	svc	0
 
 	// determining the number of bytes in unicode
@@ -51,14 +51,26 @@ _start:
 count_bytes:
 	and	w6,	w3,	w4				// first byte logical and bit mask and store the result
 	cmp	w6,	w4					// compare the result with bit mask
-	bne	exit_count_bytes_loop
+	bne	write_bytes_on_stack
 	add	w4,	w4,	w4,	LSR	#1		// set the right bit 1
 	add	w5,	w5,	1				// increase the counter by one
 	b	count_bytes
 
-exit_count_bytes_loop:
-	
-	// calling read syscall
+	// we already have one in w2
+	// hence one byte will be read
+write_bytes_on_stack:
 	ldr	w0,	[sp,	12]		// loading the file descriptor
+	add	x1,	x1,	1		// moving the stack pointer one byte up
+	svc	0
+
+	sub	w5,	w5,	1		// decrementing the counter
+	cmp	w5,	0			// if all bytes are read
+	bne	write_bytes_on_stack
 	
+	mov	w0,	1
+	add	x1,	sp,	8
+	mov	w2,	4
+	mov	w8,	0x40
+	svc	0
+
 	_exit

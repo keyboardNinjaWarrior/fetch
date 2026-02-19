@@ -59,14 +59,17 @@ count_bytes:
 	// we already have one in w2
 	// hence one byte will be read
 write_bytes_on_stack:
+	cmp	w5,	0
+	beq	print
+
 	ldr	w0,	[sp,	12]		// loading the file descriptor
 	add	x1,	x1,	1		// moving the stack pointer one byte up
 	svc	0
 
 	sub	w5,	w5,	1		// decrementing the counter
-	cmp	w5,	0			// if all bytes are read
-	bne	write_bytes_on_stack
-	
+	b	write_bytes_on_stack
+
+print:
 	mov	w0,	1
 	add	x1,	sp,	8
 	mov	w2,	4

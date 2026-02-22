@@ -1,12 +1,8 @@
-fetch: fetch.o
-	ld -o fetch fetch.o
+fetch: fetch.o output.o
+	ld -o fetch fetch.o output.o
 
-fetch.o: fetch.s exit.s
-	as --gstabs -o fetch.o fetch.s
+fetch.o: fetch.s exit.s output.s
+	as -o fetch.o fetch.s
 
-test: test.o
-	ld -o test test.o
-	gdb ./test
-
-test.o: test.s exit.s
-	as --gstabs -o test.o test.s
+output.o: output.s stack.s
+	as -o output.o output.s

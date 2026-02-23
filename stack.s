@@ -1,8 +1,4 @@
-	.file		"stack"
-
-// defines macros:
-//	1. istk	-	initialize stack
-//	2. dstk	-	delete stack
+	.file		"stack.s"
 
 /* * * * * * * * * * * * * * * * * * * * *
  * (Assembly 9b:  Functions using Stack  *

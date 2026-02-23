@@ -25,9 +25,10 @@ _start:
 	sub	sp,	sp,	0x10
 	str	w0,	[sp,	12]
 
-	bl	write_character_from_file	
-	
+	bl	read_char_from_file	
+	bl	write_char	
 	ldr	w0,	[sp,	12]
-	bl	write_character_from_file
-
+	
+	bl	read_char_from_file
+	bl	write_char
 	exit	0	

@@ -27,5 +27,4 @@
 	ldr	fp,	[sp]			// loading the value at stack pointer (frame pointer) in frame pointer setting frame pointer to the old frame pointer
 	ldr	lr,	[sp,	8]		// loading the old next instruction value from the stack in x30/lr
 	add	sp,	sp,	16		// moving a stack unit down
-	ret
 .endm

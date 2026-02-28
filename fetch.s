@@ -9,7 +9,7 @@ file:
 	.section	.text
 _start:
 	mov	fp,	sp		// moving stack pointer in frame pointer
-	
+
 	// openat	(int dfd, 
 	//		const char* filename, 
 	//		int flags, 
@@ -21,14 +21,11 @@ _start:
 	mov	w3,	0		// mode: 0 stands for null
 	mov	w8,	0x38		// syscall: 0x38 for openat
 	svc	0
-	
+
 	sub	sp,	sp,	0x10
 	str	w0,	[sp,	12]
 
 	bl	read_char_from_file	
-	bl	write_char	
-	ldr	w0,	[sp,	12]
-	
-	bl	read_char_from_file
 	bl	write_char
-	exit	0	
+
+	exit	0

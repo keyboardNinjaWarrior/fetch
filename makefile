@@ -1,7 +1,7 @@
 fetch: fetch.o read_char_from_file.o write_char.o
 	ld -o fetch fetch.o read_char_from_file.o write_char.o
 
-fetch.o: fetch.s exit.s read_char_from_file.s write_char.s
+fetch.o: fetch.s exit.s read_char_from_file.s write_char.s lain.txt
 	as --gstabs -o fetch.o fetch.s
 
 read_char_from_file.o: read_char_from_file.s stack.s

@@ -22,10 +22,17 @@ _start:
 	mov	w8,	0x38		// syscall: 0x38 for openat
 	svc	0
 
-	sub	sp,	sp,	0x10
-	str	w0,	[sp,	12]
+	sub	sp,	sp,	0x10	// pushing the stack one unit up
+	str	w0,	[sp,	12]	// storing the file discriptor
 
-	bl	read_char_from_file	
+continue_reading_from_file:
+	bl	read_char_from_file	// reading a character from file		
+	cmp	w0,	0		// looking for and end of file or an error
+	ble	end
+
 	bl	write_char
+	ldr	w0,	[sp,	12]
+	b	continue_reading_from_file	
 
-	exit	0
+end:
+	_exit

@@ -26,6 +26,8 @@ _start:
 	str	w0,	[sp,	12]	// stores the file discriptor (int) on the stack 
 	
 
+read_byte_from_file:
+	
 	// reading bytes from file	
 	/* https://www.man7.org/linux/man-pages/man2/read.2.html */
 
@@ -35,4 +37,20 @@ _start:
 	mov	x8,	0x3F		// syscall for read
 	svc	0	
 	
-	_exit
+	cmp	w0,	0		// checking for any errors or eof
+	ble	exit			// exiting in case of any
+	
+
+	// writing byte on stdout
+	// x1 and x2 already have the address and number of bytes stored
+
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */
+
+	mov	w0,	1		// 1 is magic number for stdout's file descriptor	
+	mov	x8,	0x40		// syscall for read
+	svc	0
+	
+	b	read_byte_from_file	// continue the loop
+
+exit:
+	exit	0

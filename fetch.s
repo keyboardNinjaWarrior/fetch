@@ -27,10 +27,12 @@ _start:
 	
 
 	// reading bytes from file	
-	ldr	w0,	[sp,	12]
-	add	x1,	sp,	11
-	mov	w2,	1
-	mov	x8,	0x3F
+	/* https://www.man7.org/linux/man-pages/man2/read.2.html */
+
+	ldr	w0,	[sp,	12]	// file discriptor being loaded from stack
+	add	x1,	sp,	11	// givving address of a byte variable created on the stack
+	mov	w2,	1		// number of bytes to be read from file
+	mov	x8,	0x3F		// syscall for read
 	svc	0	
 	
 	_exit

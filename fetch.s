@@ -38,7 +38,7 @@ read_byte_from_file:
 	svc	0	
 	
 	cmp	w0,	0		// checking for any errors or eof
-	ble	exit			// exiting in case of any
+	ble	close_file			// exiting in case of any
 	
 
 	// writing byte on stdout
@@ -51,6 +51,13 @@ read_byte_from_file:
 	svc	0
 	
 	b	read_byte_from_file	// continue the loop
+	
+	// closing the file
+	/* https://www.man7.org/linux/man-pages/man2/close.2.html */
 
-exit:
+close_file:
+	ldr	w0,	[sp,	12]	// loading file descriptor 
+	mov	x8,	0x39		// syscall for close
+	svc	0
+
 	exit	0

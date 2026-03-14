@@ -6,10 +6,27 @@
 file:		
 	.asciz	"lain.sixel"
 
+/* (ANSI Escape Sequences)										    * 
+ * [https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797/be1f5afaeb7996c5d966039d88108f45b0f58e0f] */
+save_cursor:
+	.byte	0x1B
+	.ascii	"7"
+
+restore_cursor:
+	.byte	0x1B
+	.ascii	"8"
+
 .section	.text
 _start:
-	mov	fp,	sp		// moving stack pointer into frame pointer for stack managment
+	// saving cursor position
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */
 	
+	mov	w0,	1		// file descriptor for stdout
+	ldr	x1,	=save_cursor	// puting address of string
+	mov	w2,	2		// length of string
+	mov	w8,	0x40		// syscall for write
+	svc	0
+
 	// opening file lain.sixel
 	
 	/* Using syscall openat */
@@ -34,11 +51,11 @@ read_byte_from_file:
 	ldr	w0,	[sp,	12]	// file discriptor being loaded from stack
 	add	x1,	sp,	11	// givving address of a byte variable created on the stack
 	mov	w2,	1		// number of bytes to be read from file
-	mov	x8,	0x3F		// syscall for read
+	mov	w8,	0x3F		// syscall for read
 	svc	0	
 	
 	cmp	w0,	0		// checking for any errors or eof
-	ble	close_file			// exiting in case of any
+	ble	close_file		// exiting in case of any
 	
 
 	// writing byte on stdout
@@ -47,7 +64,7 @@ read_byte_from_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */
 
 	mov	w0,	1		// 1 is magic number for stdout's file descriptor	
-	mov	x8,	0x40		// syscall for read
+	mov	w8,	0x40		// syscall for write
 	svc	0
 	
 	b	read_byte_from_file	// continue the loop
@@ -58,6 +75,15 @@ read_byte_from_file:
 close_file:
 	ldr	w0,	[sp,	12]	// loading file descriptor 
 	mov	x8,	0x39		// syscall for close
+	svc	0
+
+	// restoring cursor position
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
+
+	mov	w0,	1		// file descriptor for stdout
+	ldr	x1,	=restore_cursor	// puting address of string
+	mov	w2,	2		// length of string
+	mov	w8,	0x40		// syscall for write
 	svc	0
 
 	exit	0

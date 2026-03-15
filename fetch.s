@@ -16,6 +16,13 @@ restore_cursor:
 	.byte	0x1B
 	.ascii	"8"
 
+CSI:
+	.byte	0x1B
+	.ascii	"["
+
+move_cursor_right:
+	.ascii	"35C"
+
 .section	.text
 _start:
 	// saving cursor position
@@ -84,6 +91,21 @@ close_file:
 	ldr	x1,	=restore_cursor	// puting address of string
 	mov	w2,	2		// length of string
 	mov	w8,	0x40		// syscall for write
+	svc	0
+
+	// moving cursor right of the picture
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
+
+	mov	w0,	1		// file descriptor for stdout
+	ldr	x1,	=CSI		// puting address of string
+	mov	w2,	2		// length of string
+	mov	w8,	0x40		// syscall for write
+	svc	0
+
+	mov	w0,	1			// file descriptor for stdout
+	ldr	x1,	=move_cursor_right	// puting address of string
+	mov	w2,	3			// length of string
+	mov	w8,	0x40			// syscall for write
 	svc	0
 
 	exit	0

@@ -1,5 +1,6 @@
 .file		"fetch.s"
 .include	"exit.s"
+
 .global		_start
 
 .section	.data
@@ -8,20 +9,29 @@ file:
 
 /* (ANSI Escape Sequences)										    * 
  * [https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797/be1f5afaeb7996c5d966039d88108f45b0f58e0f] */
-save_cursor:
+save_cursor:					/* 2 */
 	.byte	0x1B
 	.ascii	"7"
 
-restore_cursor:
+restore_cursor:					/* 2 */
 	.byte	0x1B
 	.ascii	"8"
 
-CSI:
+move_cursor_right_35_units:			/* 5 */
 	.byte	0x1B
 	.ascii	"["
-
-move_cursor_right:
 	.ascii	"35C"
+
+operating_system:				/* 45 */
+	.byte	0x1B
+	.ascii	"[1m"
+	.byte	0x1B
+	.ascii	"[38;2;231;175;163m"
+	
+	.ascii	"Operating System:"
+	.byte	0x1B
+	.ascii	"[0m"
+	.byte	0
 
 .section	.text
 _start:
@@ -96,16 +106,18 @@ close_file:
 	// moving cursor right of the picture
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
-	mov	w0,	1		// file descriptor for stdout
-	ldr	x1,	=CSI		// puting address of string
-	mov	w2,	2		// length of string
-	mov	w8,	0x40		// syscall for write
+	mov	w0,	1				// file descriptor for stdout
+	ldr	x1,	=move_cursor_right_35_units	// puting address of string
+	mov	w2,	5				// length of string
+	mov	w8,	0x40				// syscall for write
 	svc	0
 
-	mov	w0,	1			// file descriptor for stdout
-	ldr	x1,	=move_cursor_right	// puting address of string
-	mov	w2,	3			// length of string
-	mov	w8,	0x40			// syscall for write
+	mov	w0,	1
+	ldr	x1,	=operating_system
+	mov	w2,	45
+	mov	w8,	0x40
 	svc	0
+	
+
 
 	exit	0

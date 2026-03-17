@@ -1,3 +1,0 @@
--	x# to w#
--	look into stp/ldp
--	utilize count leading zero instructions

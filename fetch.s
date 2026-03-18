@@ -98,13 +98,16 @@ close_file:
 	mov	w8,	0xA0		// sycall for uname
 	svc	0
 
+	// writing operating system from structure
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
+	
 	mov	w0,	1		// file descriptor for stdout
 	ldr	x1,	=utsname	// puting address of string
 	mov	w2,	65		// length of string
 	mov	w8,	0x40		// syscall for write
 	svc	0
 
-	// printing "Operating System:" in pink
+	// printing "Architecture:" in pink
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
 	mov	w0,	1
@@ -113,6 +116,16 @@ close_file:
 	mov	w8,	0x40
 	svc	0
 	
+	// writing architecture from structure
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
+	
+	mov	w0,	1			// file descriptor for stdout
+	ldr	x1,	=utsname			// puting address of string
+	add	x1,	x1,	(65 * 4)
+	mov	w2,	65			// length of string
+	mov	w8,	0x40			// syscall for write
+	svc	0
+
 	exit	0
 		
 .section	.data

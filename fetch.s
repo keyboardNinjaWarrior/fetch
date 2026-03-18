@@ -8,10 +8,10 @@ _start:
 	// saving cursor position
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */
 	
-	mov	w0,	1		// file descriptor for stdout
-	ldr	x1,	=save_cursor	// puting address of string
-	mov	w2,	2		// length of string
-	mov	w8,	0x40		// syscall for write
+	mov	w0,	1					// file descriptor for stdout
+	ldr	x1,	=save_cursor				// puting address of string
+	mov	w2,	restore_cursor - save_cursor 		// length of string
+	mov	w8,	0x40					// syscall for write
 	svc	0
 
 	// opening file lain.sixel
@@ -67,19 +67,19 @@ close_file:
 	// restoring cursor position
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
-	mov	w0,	1			// file descriptor for stdout
-	ldr	x1,	=restore_cursor		// puting address of string
-	mov	w2,	2			// length of string
-	mov	w8,	0x40			// syscall for write
+	mov	w0,	1						// file descriptor for stdout
+	ldr	x1,	=restore_cursor					// puting address of string
+	mov	w2,	move_cursor_right_35_units - restore_cursor	// length of string
+	mov	w8,	0x40						// syscall for write
 	svc	0
 
 	// moving cursor right of the picture
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
-	mov	w0,	1				// file descriptor for stdout
-	ldr	x1,	=move_cursor_right_35_units	// puting address of string
-	mov	w2,	5				// length of string
-	mov	w8,	0x40				// syscall for write
+	mov	w0,	1						// file descriptor for stdout
+	ldr	x1,	=move_cursor_right_35_units			// puting address of string
+	mov	w2,	operating_system - move_cursor_right_35_units 	// length of string
+	mov	w8,	0x40						// syscall for write
 	svc	0
 
 	// printing "Operating System:" in pink
@@ -87,7 +87,7 @@ close_file:
 
 	mov	w0,	1
 	ldr	x1,	=operating_system
-	mov	w2,	49
+	mov	w2,	architecture - operating_system
 	mov	w8,	0x40
 	svc	0
 
@@ -104,6 +104,15 @@ close_file:
 	mov	w8,	0x40		// syscall for write
 	svc	0
 
+	// printing "Operating System:" in pink
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
+
+	mov	w0,	1
+	ldr	x1,	=architecture
+	mov	w2,	end - architecture 
+	mov	w8,	0x40
+	svc	0
+	
 	exit	0
 		
 .section	.data
@@ -113,41 +122,75 @@ file:
 /* (ANSI Escape Sequences)										    * 
  * [https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797/be1f5afaeb7996c5d966039d88108f45b0f58e0f] */
 
-save_cursor:					/* 2 */
+/* 2 bytes */
+save_cursor:					
 	.byte	0x1B
 	.ascii	"7"
 
-restore_cursor:					/* 2 */
+/* 2 bytes */
+restore_cursor:					
 	.byte	0x1B
 	.ascii	"8"
 
-move_cursor_right_35_units:			/* 5 */
+/* 5 bytes */
+move_cursor_right_35_units:			
 	.byte	0x1B
 	.ascii	"["
 	.ascii	"35C"
 
-operating_system:				/* 49 */
+/* 51 bytes */
+operating_system:				
+	.byte	0x1B				
+	.ascii	"7"
+	
+	.byte	0x1B			
+	.ascii	"[1m"
+	
+	.byte	0x1B				
+	.ascii	"[38;2;231;175;163m"
+	
+	.ascii	"Operating System:"
+	
+	.byte	0x1B				
+	.ascii	"[5C"
+
+	.byte	0x1B				
+	.ascii	"[0m"
+	
+	.byte	0				
+
+/* 54 bytes */
+architecture:
+	.byte	0x1B
+	.ascii	"8"
+
+	.byte	0x1B
+	.ascii	"[1B"
+
+	.byte	0x1B
+	.ascii	"7"
+
 	.byte	0x1B
 	.ascii	"[1m"
 	
 	.byte	0x1B
 	.ascii	"[38;2;231;175;163m"
 	
-	.ascii	"Operating System:"
+	.ascii	"Architecture:"
 	
 	.byte	0x1B
-	.ascii	"[5C"
+	.ascii	"[9C"
 
 	.byte	0x1B
 	.ascii	"[0m"
 	
 	.byte	0
+end:
+
+.section	.bss
 
 /* struct utsname defined in file 
    usr/include/sys/uname.h */
 
 utsname:
 	.space	65 * 5
-
-architecture:
-	

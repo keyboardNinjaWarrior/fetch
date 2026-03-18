@@ -3,36 +3,6 @@
 
 .global		_start
 
-.section	.data
-file:		
-	.asciz	"lain.sixel"
-
-/* (ANSI Escape Sequences)										    * 
- * [https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797/be1f5afaeb7996c5d966039d88108f45b0f58e0f] */
-save_cursor:					/* 2 */
-	.byte	0x1B
-	.ascii	"7"
-
-restore_cursor:					/* 2 */
-	.byte	0x1B
-	.ascii	"8"
-
-move_cursor_right_35_units:			/* 5 */
-	.byte	0x1B
-	.ascii	"["
-	.ascii	"35C"
-
-operating_system:				/* 45 */
-	.byte	0x1B
-	.ascii	"[1m"
-	.byte	0x1B
-	.ascii	"[38;2;231;175;163m"
-	
-	.ascii	"Operating System:"
-	.byte	0x1B
-	.ascii	"[0m"
-	.byte	0
-
 .section	.text
 _start:
 	// saving cursor position
@@ -97,10 +67,10 @@ close_file:
 	// restoring cursor position
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
-	mov	w0,	1		// file descriptor for stdout
-	ldr	x1,	=restore_cursor	// puting address of string
-	mov	w2,	2		// length of string
-	mov	w8,	0x40		// syscall for write
+	mov	w0,	1			// file descriptor for stdout
+	ldr	x1,	=restore_cursor		// puting address of string
+	mov	w2,	2			// length of string
+	mov	w8,	0x40			// syscall for write
 	svc	0
 
 	// moving cursor right of the picture
@@ -112,12 +82,72 @@ close_file:
 	mov	w8,	0x40				// syscall for write
 	svc	0
 
+	// printing "Operating System:" in pink
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
+
 	mov	w0,	1
 	ldr	x1,	=operating_system
-	mov	w2,	45
+	mov	w2,	49
 	mov	w8,	0x40
 	svc	0
-	
 
+	// fetching utsname structure
+	/* https://www.man7.org/linux/man-pages/man2/uname.2.html */
+	
+	ldr	x0,	=utsname	// address where the structure will be store
+	mov	w8,	0xA0		// sycall for uname
+	svc	0
+
+	mov	w0,	1		// file descriptor for stdout
+	ldr	x1,	=utsname	// puting address of string
+	mov	w2,	65		// length of string
+	mov	w8,	0x40		// syscall for write
+	svc	0
 
 	exit	0
+		
+.section	.data
+file:		
+	.asciz	"lain.sixel"
+
+/* (ANSI Escape Sequences)										    * 
+ * [https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797/be1f5afaeb7996c5d966039d88108f45b0f58e0f] */
+
+save_cursor:					/* 2 */
+	.byte	0x1B
+	.ascii	"7"
+
+restore_cursor:					/* 2 */
+	.byte	0x1B
+	.ascii	"8"
+
+move_cursor_right_35_units:			/* 5 */
+	.byte	0x1B
+	.ascii	"["
+	.ascii	"35C"
+
+operating_system:				/* 49 */
+	.byte	0x1B
+	.ascii	"[1m"
+	
+	.byte	0x1B
+	.ascii	"[38;2;231;175;163m"
+	
+	.ascii	"Operating System:"
+	
+	.byte	0x1B
+	.ascii	"[5C"
+
+	.byte	0x1B
+	.ascii	"[0m"
+	
+	.byte	0
+
+/* struct utsname defined in file 
+   usr/include/sys/uname.h */
+
+utsname:
+	.space	65 * 5
+
+architecture:
+	

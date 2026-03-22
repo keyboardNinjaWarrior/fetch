@@ -133,14 +133,27 @@ close_file:
 	adr x1, kernel						// loading address of string	
 	mov w2, getprop - kernel		    // length of sting		
 	mov w8, 0x40						// syscall for write		
+	svc 0		
+
+	/* long clone (	unisigned long flags,		*
+	 *				void *stack,				*
+	 *				int *parent_tid,			*
+	 *				unsigned long tls,			*
+	 *				int *child_tid				*
+	 *			  );							*/
+
+	movz x0, 0x8000, LSL 16		// seting flags: CLONE_FS (0x200) | CLONE_IO (0x80000000)
+	movk x0, 0x0200	
+
+	mov x8, 0xDC
 	svc 0
-	
+
 	// executing getrop instruction
 	/* https://www.man7.org/linux/man-pages/man2/execve.2.html */
 
 	adr x0,	getprop		// loading address of string having address of getprop
 	adr	x1,	argv		// address of array that contains parameters
-	adr x2, envp		// null pointer
+	adr x2, null		// null pointer
 	mov x8, 0xDD		// syscall for execve
 	svc 0
 
@@ -154,7 +167,7 @@ argv:
 	.dword	getprop
 	.dword	ro.kernel.version
 
-envp:
+null:
 	.dword	0
 
 file:		

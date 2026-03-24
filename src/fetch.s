@@ -1,5 +1,5 @@
 .file		"fetch.s"
-.include	"exit.s"
+.include	"src/exit.s"
 
 .global		_start
 
@@ -139,7 +139,7 @@ close_file:
 		
 .section	.data
 file:		
-	.asciz	"lain.sixel"
+	.asciz	"rsc/lain.sixel"
 
 /* (ANSI Escape Sequences)										    * 
  * [https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797/be1f5afaeb7996c5d966039d88108f45b0f58e0f] */

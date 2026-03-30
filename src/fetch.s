@@ -8,10 +8,10 @@ _start:
 	// saving cursor position
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */
 	
-	mov	w0,	1					// file descriptor for stdout
-	ldr	x1,	=save_cursor				// puting address of string
-	mov	w2,	restore_cursor - save_cursor 		// length of string
-	mov	w8,	0x40					// syscall for write
+	mov	w0,	1								// file descriptor for stdout
+	ldr	x1,	=save_cursor					// puting address of string
+	mov	w2,	restore_cursor - save_cursor	// length of string
+	mov	w8,	0x40							// syscall for write
 	svc	0
 
 	// opening file lain.sixel
@@ -22,12 +22,12 @@ _start:
 
 	mov	w0,	-100		// -100 magic number for searching in te current directory
 	ldr	w1,	=file		// loading the string
-	mov	w2,	0		// 0000 for readonly
+	mov	w2,	0			// 0000 for readonly
 	mov	w8,	0x38		// syscall for openat
 	svc	0
 	
-	sub	sp,	sp,	16	// making room on the stack
-	str	w0,	[sp,	12]	// stores the file discriptor (int) on the stack 
+	sub	sp,	sp,	16			// making room on the stack
+	str	w0,	[sp,	12]		// stores the file discriptor (int) on the stack 
 	
 
 read_byte_from_file:
@@ -35,13 +35,13 @@ read_byte_from_file:
 	// reading bytes from file	
 	/* https://www.man7.org/linux/man-pages/man2/read.2.html */
 
-	ldr	w0,	[sp,	12]	// file discriptor being loaded from stack
-	add	x1,	sp,	11	// givving address of a byte variable created on the stack
-	mov	w2,	1		// number of bytes to be read from file
-	mov	w8,	0x3F		// syscall for read
+	ldr	w0,	[sp,	12]		// file discriptor being loaded from stack
+	add	x1,	sp,	11			// givving address of a byte variable created on the stack
+	mov	w2,	1				// number of bytes to be read from file
+	mov	w8,	0x3F			// syscall for read
 	svc	0	
 	
-	cmp	w0,	0		// checking for any errors or eof
+	cmp	w0,	0			// checking for any errors or eof
 	ble	close_file		// exiting in case of any
 	
 
@@ -50,36 +50,36 @@ read_byte_from_file:
 
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */
 
-	mov	w0,	1		// 1 is magic number for stdout's file descriptor	
-	mov	w8,	0x40		// syscall for write
+	mov	w0,	1					// 1 is magic number for stdout's file descriptor	
+	mov	w8,	0x40				// syscall for write
 	svc	0
 	
-	b	read_byte_from_file	// continue the loop
+	b	read_byte_from_file		// continue the loop
 	
 	// closing the file
 	/* https://www.man7.org/linux/man-pages/man2/close.2.html */
 
 close_file:
-	ldr	w0,	[sp,	12]	// loading file descriptor 
-	mov	x8,	0x39		// syscall for close
+	ldr	w0,	[sp,	12]		// loading file descriptor 
+	mov	x8,	0x39			// syscall for close
 	svc	0
 
 	// restoring cursor position
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
-	mov	w0,	1						// file descriptor for stdout
-	ldr	x1,	=restore_cursor					// puting address of string
-	mov	w2,	move_cursor_right_35_units - restore_cursor	// length of string
-	mov	w8,	0x40						// syscall for write
+	mov	w0,	1												// file descriptor for stdout
+	ldr	x1,	=restore_cursor									// puting address of string
+	mov	w2,	move_cursor_right_35_units - restore_cursor		// length of string
+	mov	w8,	0x40											// syscall for write
 	svc	0
 
 	// moving cursor right of the picture
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
-	mov	w0,	1						// file descriptor for stdout
-	ldr	x1,	=move_cursor_right_35_units			// puting address of string
-	mov	w2,	operating_system - move_cursor_right_35_units 	// length of string
-	mov	w8,	0x40						// syscall for write
+	mov	w0,	1												// file descriptor for stdout
+	ldr	x1,	=move_cursor_right_35_units						// puting address of string
+	mov	w2,	operating_system - move_cursor_right_35_units	// length of string
+	mov	w8,	0x40											// syscall for write
 	svc	0
 
 	// printing "Operating System:" in pink
@@ -101,10 +101,10 @@ close_file:
 	// writing operating system from structure
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 	
-	mov	w0,	1		// file descriptor for stdout
-	ldr	x1,	=utsname	// puting address of string
-	mov	w2,	65		// length of string
-	mov	w8,	0x40		// syscall for write
+	mov	w0,	1				// file descriptor for stdout
+	ldr	x1,	=utsname		// puting address of string
+	mov	w2,	5				// length of string
+	mov	w8,	0x40			// syscall for write
 	svc	0
 
 	// printing "Architecture:" in pink
@@ -119,10 +119,10 @@ close_file:
 	// writing architecture from structure
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 	
-	mov	w0,	1			// file descriptor for stdout
+	mov	w0,	1				// file descriptor for stdout
 	ldr	x1,	=utsname		// puting address of string
 	add	x1,	x1,	(65 * 4)	// getting the value of architeture
-	mov	w2,	65			// length of string
+	mov	w2,	7				// length of string
 	mov	w8,	0x40			// syscall for write
 	svc	0
 
@@ -135,6 +135,16 @@ close_file:
 	mov	w8,	0x40
 	svc	0
 	
+	// writing architecture from structure
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
+	
+	mov	w0,	1				// file descriptor for stdout
+	ldr	x1,	=utsname		// puting address of string
+	add	x1,	x1,	(65 * 2)	// getting the value of architeture
+	mov	w2,	18				// length of string
+	mov	w8,	0x40			// syscall for write
+	svc	0
+
 	exit	0
 		
 .section	.data

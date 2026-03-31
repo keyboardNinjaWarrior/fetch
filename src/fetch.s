@@ -9,7 +9,7 @@ _start:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */
 	
 	mov	w0,	1								// file descriptor for stdout
-	ldr	x1,	=save_cursor					// puting address of string
+	adr	x1,	save_cursor						// puting address of string
 	mov	w2,	restore_cursor - save_cursor	// length of string
 	mov	w8,	0x40							// syscall for write
 	svc	0
@@ -21,7 +21,7 @@ _start:
 	/* https://www.man7.org/linux/man-pages/man3/open.3p.html */
 
 	mov	w0,	-100		// -100 magic number for searching in te current directory
-	ldr	w1,	=file		// loading the string
+	adr	x1,	file		// loading the string
 	mov	w2,	0			// 0000 for readonly
 	mov	w8,	0x38		// syscall for openat
 	svc	0
@@ -68,7 +68,7 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
 	mov	w0,	1												// file descriptor for stdout
-	ldr	x1,	=restore_cursor									// puting address of string
+	adr	x1,	restore_cursor									// puting address of string
 	mov	w2,	move_cursor_right_35_units - restore_cursor		// length of string
 	mov	w8,	0x40											// syscall for write
 	svc	0
@@ -77,7 +77,7 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
 	mov	w0,	1												// file descriptor for stdout
-	ldr	x1,	=move_cursor_right_35_units						// puting address of string
+	adr	x1,	move_cursor_right_35_units						// puting address of string
 	mov	w2,	operating_system - move_cursor_right_35_units	// length of string
 	mov	w8,	0x40											// syscall for write
 	svc	0
@@ -86,7 +86,7 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
 	mov	w0,	1
-	ldr	x1,	=operating_system
+	adr	x1,	operating_system
 	mov	w2,	architecture - operating_system
 	mov	w8,	0x40
 	svc	0
@@ -94,7 +94,7 @@ close_file:
 	// fetching utsname structure
 	/* https://www.man7.org/linux/man-pages/man2/uname.2.html */
 	
-	ldr	x0,	=utsname	// address where the structure will be store
+	adr	x0,	utsname		// address where the structure will be store
 	mov	w8,	0xA0		// sycall for uname
 	svc	0
 
@@ -102,7 +102,7 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 	
 	mov	w0,	1				// file descriptor for stdout
-	ldr	x1,	=utsname		// puting address of string
+	adr	x1,	utsname			// puting address of string
 	mov	w2,	5				// length of string
 	mov	w8,	0x40			// syscall for write
 	svc	0
@@ -111,7 +111,7 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
 	mov	w0,	1
-	ldr	x1,	=architecture
+	adr	x1,	architecture
 	mov	w2,	kernel - architecture 
 	mov	w8,	0x40
 	svc	0
@@ -120,7 +120,7 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 	
 	mov	w0,	1				// file descriptor for stdout
-	ldr	x1,	=utsname		// puting address of string
+	adr	x1,	utsname			// puting address of string
 	add	x1,	x1,	(65 * 4)	// getting the value of architeture
 	mov	w2,	7				// length of string
 	mov	w8,	0x40			// syscall for write
@@ -130,7 +130,7 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
 	mov	w0,	1
-	ldr	x1,	=kernel
+	adr	x1,	kernel
 	mov	w2,	uptime - kernel 
 	mov	w8,	0x40
 	svc	0
@@ -139,7 +139,7 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 	
 	mov	w0,	1				// file descriptor for stdout
-	ldr	x1,	=utsname		// puting address of string
+	adr	x1,	utsname			// puting address of string
 	add	x1,	x1,	(65 * 2)	// getting the value of architeture
 	mov	w2,	18				// length of string
 	mov	w8,	0x40			// syscall for write
@@ -149,12 +149,20 @@ close_file:
 	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
 
 	mov	w0,	1
-	ldr	x1,	=uptime
+	adr	x1,	uptime
 	mov	w2,	end - uptime
 	mov	w8,	0x40
 	svc	0
+	
+	// storing CLOCK_MONTONIC
+	/* https://www.man7.org/linux/man-pages/man2/clock_gettime.2.html */	
 
-	exit	0
+	mov w0,	1			// #define CLOCK_MONOTOMIC 1 from linux/time.h
+	adr	x1, tp			// putting the address of structure
+	mov	w8,	0x71		// syscall for clock_gettime
+	svc 0
+	
+	exit 0
 		
 .section	.data
 file:		
@@ -163,7 +171,7 @@ file:
 /* (ANSI Escape Sequences)										    * 
  * [https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797/be1f5afaeb7996c5d966039d88108f45b0f58e0f] */
 
-save_cursor:					
+save_cursor:
 	.byte	0x1B
 	.ascii	"7"
 
@@ -277,8 +285,19 @@ end:
 
 .section	.bss
 
+/* 
+ *	typedef timespec {
+ *		(long) time_t seconds;
+ *		long nanoseconds;
+ *	} tp;
+ */
+
+.balign 8
+tp:
+	.space	8 * 2
+
 /* struct utsname defined in file 
-   usr/include/sys/uname.h */
+   usr/include/sys/uname.h			*/
 
 utsname:
 	.space	65 * 5

@@ -131,7 +131,7 @@ close_file:
 
 	mov	w0,	1
 	ldr	x1,	=kernel
-	mov	w2,	end - kernel 
+	mov	w2,	uptime - kernel 
 	mov	w8,	0x40
 	svc	0
 	
@@ -143,6 +143,15 @@ close_file:
 	add	x1,	x1,	(65 * 2)	// getting the value of architeture
 	mov	w2,	18				// length of string
 	mov	w8,	0x40			// syscall for write
+	svc	0
+
+	// printing "Uptime:" in pink
+	/* https://www.man7.org/linux/man-pages/man2/write.2.html */	
+
+	mov	w0,	1
+	ldr	x1,	=uptime
+	mov	w2,	end - uptime
+	mov	w8,	0x40
 	svc	0
 
 	exit	0
@@ -230,6 +239,32 @@ kernel:
 	.ascii	"[38;2;231;175;163m"
 	
 	.ascii	"Kernel:"
+	
+	.byte	0x1B
+	.ascii	"[15C"
+
+	.byte	0x1B
+	.ascii	"[0m"
+	
+	.byte	0
+
+uptime:
+	.byte	0x1B
+	.ascii	"8"
+
+	.byte	0x1B
+	.ascii	"[2B"
+
+	.byte	0x1B
+	.ascii	"7"
+
+	.byte	0x1B
+	.ascii	"[1m"
+	
+	.byte	0x1B
+	.ascii	"[38;2;231;175;163m"
+	
+	.ascii	"Uptime:"
 	
 	.byte	0x1B
 	.ascii	"[15C"
